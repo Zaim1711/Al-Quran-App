@@ -325,7 +325,40 @@ class _SurahViewState extends State<SurahView> {
                         );
                       },
                     ),
-                    Center(child: Text("page3")),
+                    GetBuilder<SurahController>(builder: (c) {
+                      return FutureBuilder<List<Map<String, dynamic>>>(
+                        future: controller.getBookmark(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.data?.length == 0) {
+                            return Center(
+                              child: Text("Bookmark tidak tersedia"),
+                            );
+                          }
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              Map<String, dynamic> data = snapshot.data![index];
+                              return ListTile(
+                                onTap: () {
+                                  print(data);
+                                },
+                                leading: CircleAvatar(
+                                  child: Text("${index + 1}"),
+                                ),
+                                title: Text("${data['surah']}"),
+                                subtitle: Text("Ayat ${data['ayat']}"),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    })
                   ],
                 ),
               ),

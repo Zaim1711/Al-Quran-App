@@ -4,13 +4,26 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:test_cli/app/constants/color.dart';
+import 'package:test_cli/app/data/db/bookmark.dart';
 import 'package:test_cli/app/data/model/detailSurah.dart';
 import 'package:test_cli/app/data/model/surah.dart';
 import 'package:test_cli/app/routes/app_pages.dart';
 
 class SurahController extends GetxController {
   RxBool isDark = false.obs;
+
+  DatabaseManager database = DatabaseManager.instance;
+
+  Future<List<Map<String, dynamic>>> getBookmark() async {
+    Database db = await database.db;
+    List<Map<String, dynamic>> allbookmark = await db.query(
+      "bookmark",
+      where: "last_read = 0",
+    );
+    return allbookmark;
+  }
 
   void changeThemeMode() async {
     Get.isDarkMode ? Get.changeTheme(appLight) : Get.changeTheme(appDark);

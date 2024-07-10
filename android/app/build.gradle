@@ -51,6 +51,11 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.media2:media2-session:1.2.1'
+        }
+    }
 }
 
 flutter {
