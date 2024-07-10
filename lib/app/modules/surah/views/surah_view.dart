@@ -58,7 +58,7 @@ class _SurahViewState extends State<SurahView> {
         actions: [
           IconButton(
             onPressed: () => Get.toNamed(Routes.SEARCH_SURAH),
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             color: appWhite,
           ),
         ],
@@ -66,7 +66,7 @@ class _SurahViewState extends State<SurahView> {
       body: DefaultTabController(
         length: 3,
         child: Padding(
-          padding: EdgeInsets.only(top: 20, right: 20, left: 20),
+          padding: const EdgeInsets.only(top: 20, right: 20, left: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -77,82 +77,191 @@ class _SurahViewState extends State<SurahView> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
-                    colors: [
-                      appGreenLight,
-                      appGreenDark,
-                    ],
-                  ),
-                ),
-                child: Material(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () => Get.toNamed(Routes.LAST_READ),
-                    child: SizedBox(
-                      width: Get.width,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            bottom: -5,
-                            right: 0,
-                            child: Opacity(
-                              opacity: 0.9,
-                              child: SizedBox(
-                                width: 150,
-                                height: 155,
-                                child: Image.asset(
-                                  "assets/images/Alquran_images.png",
-                                  fit: BoxFit.contain,
+              GetBuilder<SurahController>(
+                builder: (c) => FutureBuilder<Map<String, dynamic>?>(
+                  future: c.getLastRead(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: const LinearGradient(
+                            colors: [
+                              appGreenLight,
+                              appGreenDark,
+                            ],
+                          ),
+                        ),
+                        child: SizedBox(
+                          width: Get.width,
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                bottom: -5,
+                                right: 0,
+                                child: Opacity(
+                                  opacity: 0.9,
+                                  child: SizedBox(
+                                    width: 150,
+                                    height: 155,
+                                    child: Image.asset(
+                                      "assets/images/Alquran_images.png",
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                              const Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(
-                                      Icons.menu_book_rounded,
-                                      color: appWhite,
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.menu_book_rounded,
+                                          color: appWhite,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Terakhir dibaca",
+                                          style: TextStyle(color: appWhite),
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 30),
                                     Text(
-                                      "Terakhir dibaca",
-                                      style: TextStyle(color: appWhite),
+                                      "Loading...",
+                                      style: TextStyle(
+                                        color: appWhite,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    Text(
+                                      "",
+                                      style: TextStyle(
+                                        color: appWhite,
+                                        fontSize: 20,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 30),
-                                Text(
-                                  "Al-Fatihah",
-                                  style: TextStyle(
-                                    color: appWhite,
-                                    fontSize: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    Map<String, dynamic>? lastRead = snapshot.data;
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: const LinearGradient(
+                          colors: [
+                            appGreenLight,
+                            appGreenDark,
+                          ],
+                        ),
+                      ),
+                      child: Material(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onLongPress: () {
+                            if (lastRead != null) {
+                              Get.defaultDialog(
+                                  title: "Hapus Terakhir dibaca",
+                                  middleText:
+                                      "Apakah anda yakin untuk menghapus?",
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () => Get.back(),
+                                      child: Text("CANCEL"),
+                                    ),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          c.deleteBookmark(lastRead['id']);
+                                        },
+                                        child: Text("DELETE"))
+                                  ]);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () {
+                            if (lastRead != null) {
+                              //diarahkan ke page last read
+                            }
+                          },
+                          child: SizedBox(
+                            width: Get.width,
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  bottom: -5,
+                                  right: 0,
+                                  child: Opacity(
+                                    opacity: 0.9,
+                                    child: SizedBox(
+                                      width: 150,
+                                      height: 155,
+                                      child: Image.asset(
+                                        "assets/images/Alquran_images.png",
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                Text(
-                                  "Juz 1 | Ayat 5",
-                                  style: TextStyle(
-                                    color: appWhite,
-                                    fontSize: 20,
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.menu_book_rounded,
+                                            color: appWhite,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            "Terakhir dibaca",
+                                            style: TextStyle(color: appWhite),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 30),
+                                      if (lastRead != null)
+                                        Text(
+                                          "${lastRead['surah'].toString().replaceAll("+", "'")}",
+                                          style: const TextStyle(
+                                            color: appWhite,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      Text(
+                                        lastRead == null
+                                            ? "Belum ada"
+                                            : "Ayat ${lastRead['ayat']}",
+                                        style: const TextStyle(
+                                          color: appWhite,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               const TabBar(
@@ -331,12 +440,12 @@ class _SurahViewState extends State<SurahView> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return Center(
+                            return const Center(
                               child: CircularProgressIndicator(),
                             );
                           }
                           if (snapshot.data?.length == 0) {
-                            return Center(
+                            return const Center(
                               child: Text("Bookmark tidak tersedia"),
                             );
                           }
@@ -348,11 +457,40 @@ class _SurahViewState extends State<SurahView> {
                                 onTap: () {
                                   print(data);
                                 },
-                                leading: CircleAvatar(
-                                  child: Text("${index + 1}"),
+                                leading: Obx(
+                                  () => Container(
+                                    height: 35,
+                                    width: 35,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          controller.isDark.isTrue
+                                              ? "assets/images/octagonwhite_list.png"
+                                              : "assets/images/octagon_list.png",
+                                        ),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "${index + 1}",
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                title: Text("${data['surah']}"),
-                                subtitle: Text("Ayat ${data['ayat']}"),
+                                title: Text(
+                                    "${data['surah'].toString().replaceAll("+", "'")}"),
+                                subtitle: Text(
+                                  "Ayat ${data['ayat']}",
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                                trailing: IconButton(
+                                  onPressed: () {
+                                    c.deleteBookmark(data['id']);
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                ),
                               );
                             },
                           );

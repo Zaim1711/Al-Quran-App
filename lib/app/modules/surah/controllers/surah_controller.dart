@@ -16,6 +16,31 @@ class SurahController extends GetxController {
 
   DatabaseManager database = DatabaseManager.instance;
 
+  Future<Map<String, dynamic>?> getLastRead() async {
+    Database db = await database.db;
+    List<Map<String, dynamic>> dataLastRead = await db.query(
+      "bookmark",
+      where: "last_read = 1",
+    );
+    if (dataLastRead.length == 0) {
+      return null;
+    } else {
+      return dataLastRead.first;
+    }
+  }
+
+  deleteBookmark(int id) async {
+    Database db = await database.db;
+    db.delete("bookmark", where: "id = $id");
+    update();
+    Get.back();
+    Get.snackbar(
+      "Berhasil",
+      "Berhasil menghapus bookmark",
+      colorText: appWhite,
+    );
+  }
+
   Future<List<Map<String, dynamic>>> getBookmark() async {
     Database db = await database.db;
     List<Map<String, dynamic>> allbookmark = await db.query(

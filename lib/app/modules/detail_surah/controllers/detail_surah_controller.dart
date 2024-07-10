@@ -13,7 +13,7 @@ class DetailSurahController extends GetxController {
 
   DatabaseManager database = DatabaseManager.instance;
 
-  void addBookmark(
+  Future<void> addBookmark(
       bool lastRead, DetailSurah surah, Ayat ayat, int indexAyat) async {
     Database db = await database.db;
 
@@ -26,7 +26,7 @@ class DetailSurahController extends GetxController {
         "bookmark",
         columns: ["surah", "ayat", "index_ayat", "last_read"],
         where:
-            "surah= '${surah.namaLatin?.replaceAll("'", "")}' and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
+            "surah= '${surah.namaLatin?.replaceAll("'", "+")}' and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
       );
       if (checkData.length != 0) {
         flagExist = true;
@@ -35,13 +35,14 @@ class DetailSurahController extends GetxController {
 
     if (flagExist == false) {
       await db.insert("bookmark", {
-        "surah": "${surah.namaLatin?.replaceAll("'", "")}",
+        "surah": "${surah.namaLatin?.replaceAll("'", "+")}",
         "ayat": "${ayat.nomorAyat}",
         "index_ayat": indexAyat,
         "last_read": lastRead == true ? 1 : 0,
       });
 
       Get.back();
+      update();
       Get.snackbar("Berhasil", "Berhasil menambahkan bookmark",
           colorText: appWhite);
     } else {

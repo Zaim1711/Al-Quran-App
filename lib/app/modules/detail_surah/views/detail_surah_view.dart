@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_cli/app/constants/color.dart';
 import 'package:test_cli/app/data/model/detailSurah.dart'; // Adjust path as per your project structure
+import 'package:test_cli/app/modules/surah/controllers/surah_controller.dart';
 import 'package:test_cli/app/routes/app_pages.dart';
 
 import '../controllers/detail_surah_controller.dart'; // Adjust path as per your project structure
 
 class DetailSurahView extends GetView<DetailSurahController> {
+  final SurahC = Get.find<SurahController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,9 +140,10 @@ class DetailSurahView extends GetView<DetailSurahController> {
                                           middleText: "Pilih jenis bookmark",
                                           actions: [
                                             ElevatedButton(
-                                              onPressed: () {
-                                                c.addBookmark(
+                                              onPressed: () async {
+                                                await c.addBookmark(
                                                     true, surah, ayat, index);
+                                                SurahC.update();
                                               },
                                               child: Text(
                                                 "LAST READ",
