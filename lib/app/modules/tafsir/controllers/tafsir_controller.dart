@@ -6,6 +6,7 @@ import 'package:test_cli/app/data/model/tafsir.dart';
 
 class TafsirController extends GetxController {
   var tafsir = Rxn<Tafsirfull>(); // Updated to Rxn<Data>
+  RxBool isDark = false.obs;
   var isLoading = false.obs;
 
   Future<void> fetchSurahDetails(int id) async {

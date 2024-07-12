@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:test_cli/app/constants/color.dart';
 import 'package:test_cli/app/data/model/tafsir.dart';
 import 'package:test_cli/app/modules/tafsir/controllers/tafsir_controller.dart';
 
@@ -15,11 +16,30 @@ class TafsirView extends GetView<TafsirController> {
       appBar: AppBar(
         title: Obx(() {
           if (controller.isLoading.value) {
-            return const Text('Loading...');
+            return const Text(
+              'Loading...',
+              style: TextStyle(
+                color: appWhite,
+              ),
+            );
           }
-          return Text(controller.tafsir.value?.namaLatin ?? 'Detail Surah');
+          return Text(
+            controller.tafsir.value?.namaLatin ?? 'Detail Surah',
+            style: TextStyle(
+              color: appWhite,
+            ),
+          );
         }),
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: appWhite,
+          ),
+          onPressed: () {
+            Get.back();
+          },
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -54,10 +74,24 @@ class TafsirView extends GetView<TafsirController> {
               itemCount: surah.tafsir.length,
               itemBuilder: (context, index) {
                 Tafsir tafsir = surah.tafsir[index];
-                return Card(
-                  child: ListTile(
-                    title: Text("Ayat ${tafsir.ayat}"),
-                    subtitle: Text(tafsir.teks, textAlign: TextAlign.justify),
+                return Obx(
+                  () => Card(
+                    color: controller.isDark.value
+                        ? Colors.grey[800]
+                        : Colors.white,
+                    elevation: 3,
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: ListTile(
+                      title: Text(
+                        "Ayat ${tafsir.ayat}",
+                        style: TextStyle(color: appGreenDark),
+                      ),
+                      subtitle: Text(
+                        tafsir.teks,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(color: appGreenDark),
+                      ),
+                    ),
                   ),
                 );
               },

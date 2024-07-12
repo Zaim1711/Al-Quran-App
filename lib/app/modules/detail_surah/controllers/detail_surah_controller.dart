@@ -11,6 +11,7 @@ import 'package:test_cli/app/data/model/detailSurah.dart';
 
 class DetailSurahController extends GetxController {
   AutoScrollController scrollC = AutoScrollController();
+  RxBool isDark = false.obs;
   var surahDetails = Rxn<DetailSurah>();
 
   DatabaseManager database = DatabaseManager.instance;
@@ -26,9 +27,16 @@ class DetailSurahController extends GetxController {
     } else {
       List checkData = await db.query(
         "bookmark",
-        columns: ["surah", "number_surah", "ayat", "index_ayat", "last_read"],
+        columns: [
+          "surah",
+          "number_surah",
+          "turun",
+          "ayat",
+          "index_ayat",
+          "last_read"
+        ],
         where:
-            "surah= '${surah.namaLatin?.replaceAll("'", "+")}' and number_surah = ${surah.nomor!} and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
+            "surah= '${surah.namaLatin?.replaceAll("'", "+")}' and number_surah = ${surah.nomor!} and turun = '${surah.tempatTurun}' and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
       );
       if (checkData.length != 0) {
         flagExist = true;
@@ -39,6 +47,7 @@ class DetailSurahController extends GetxController {
       await db.insert("bookmark", {
         "surah": "${surah.namaLatin?.replaceAll("'", "+")}",
         "number_surah": "${surah.nomor}",
+        "turun": "${surah.tempatTurun}",
         "ayat": "${ayat.nomorAyat}",
         "index_ayat": indexAyat,
         "last_read": lastRead == true ? 1 : 0,
@@ -86,7 +95,9 @@ class DetailSurahController extends GetxController {
   Ayat? lastAyat;
   final AudioPlayer player = AudioPlayer();
 
-  void playAudio(Ayat? ayat) async {
+  void playAudio(
+    Ayat? ayat,
+  ) async {
     if (ayat?.audio != null && ayat!.audio!.isNotEmpty) {
       try {
         lastAyat ??= ayat;
@@ -95,7 +106,7 @@ class DetailSurahController extends GetxController {
         lastAyat!.kondisiAudio = "stop";
         update();
         await player.stop();
-        String audioUrl = ayat.audio!.values.first;
+        String audioUrl = ayat.audio!.values.last;
         update();
         await player.setUrl(audioUrl);
         ayat.kondisiAudio = "playing";

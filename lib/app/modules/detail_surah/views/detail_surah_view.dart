@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:test_cli/app/constants/color.dart';
-import 'package:test_cli/app/data/model/detailSurah.dart'; // Adjust path as per your project structure
+import 'package:test_cli/app/data/model/detailSurah.dart'; // Sesuaikan path sesuai struktur proyek
 import 'package:test_cli/app/modules/surah/controllers/surah_controller.dart';
 import 'package:test_cli/app/routes/app_pages.dart';
 
-import '../controllers/detail_surah_controller.dart'; // Adjust path as per your project structure
+import '../controllers/detail_surah_controller.dart'; // Sesuaikan path sesuai struktur proyek
 
 class DetailSurahView extends GetView<DetailSurahController> {
-  final SurahC = Get.find<SurahController>();
+  final SurahController surahC = Get.find<SurahController>();
   Map<String, dynamic>? bookmark;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,25 +40,24 @@ class DetailSurahView extends GetView<DetailSurahController> {
       ),
       body: Obx(() {
         if (controller.surahDetails.value == null) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        if (Get.arguments["bookmark"] != null) {
-          bookmark = Get.arguments["bookmark"];
+        if (Get.arguments?["bookmark"] != null) {
+          bookmark = Get.arguments!["bookmark"] as Map<String, dynamic>?;
           print("INDEX AYAT : ${bookmark!["index_ayat"] + 2}");
           controller.scrollC.scrollToIndex(
             bookmark!["index_ayat"] + 2,
             preferPosition: AutoScrollPosition.begin,
           );
         }
-        print(bookmark);
 
         DetailSurah surah = controller.surahDetails.value!;
 
-        List<Widget> allAyat = List.generate(surah.ayat?.length ?? 0, (index) {
-          final Ayat? ayat = surah.ayat![index];
-          final ayatNumber = ayat!.nomorAyat! + 0;
+        List<Widget> allAyat = List.generate(surah.ayat!.length, (index) {
+          Ayat ayat = surah.ayat![index];
+          int ayatNumber = ayat.nomorAyat!;
 
           return AutoScrollTag(
             key: ValueKey(index + 2),
@@ -95,7 +93,7 @@ class DetailSurahView extends GetView<DetailSurahController> {
                           ),
                           child: Center(
                             child: Text(
-                              "${ayatNumber}",
+                              "$ayatNumber",
                             ),
                           ),
                         ),
@@ -112,14 +110,15 @@ class DetailSurahView extends GetView<DetailSurahController> {
                                         onPressed: () async {
                                           await c.addBookmark(
                                               true, surah, ayat, index);
-                                          SurahC.update();
+                                          surahC.update();
                                         },
                                         child: Text(
                                           "Last Read",
                                           style: TextStyle(color: appWhite),
                                         ),
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: appGreen),
+                                          backgroundColor: appGreen,
+                                        ),
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
@@ -131,8 +130,9 @@ class DetailSurahView extends GetView<DetailSurahController> {
                                           style: TextStyle(color: appWhite),
                                         ),
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: appGreen),
-                                      )
+                                          backgroundColor: appGreen,
+                                        ),
+                                      ),
                                     ],
                                   );
                                 },
@@ -209,53 +209,65 @@ class DetailSurahView extends GetView<DetailSurahController> {
         });
 
         return Scrollbar(
-          thumbVisibility: true, // Tampilkan scrollbar selalu
-          controller:
-              _scrollController, // Gunakan ScrollController yang disediakan
           child: ListView(
-            controller:
-                _scrollController, // Gunakan ScrollController yang disediakan
+            controller: controller.scrollC,
             padding: const EdgeInsets.all(20),
             children: [
-              GestureDetector(
-                onTap: () {
-                  Get.toNamed(Routes.TAFSIR,
-                      arguments: {'surahNumber': surah.nomor});
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: const LinearGradient(
-                        colors: [appGreenLight, appGreenDark]),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "${surah.namaLatin?.toUpperCase() ?? 'Error...'} - ${surah.nama?.toUpperCase() ?? 'Error..'}",
-                            style: const TextStyle(
+              AutoScrollTag(
+                key: const ValueKey(0),
+                index: 0,
+                controller: controller.scrollC,
+                child: GestureDetector(
+                  onTap: () {
+                    Get.toNamed(
+                      Routes.TAFSIR,
+                      arguments: {'surahNumber': surah.nomor},
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        colors: [appGreenLight, appGreenDark],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${surah.namaLatin?.toUpperCase() ?? 'Error...'} - ${surah.nama?.toUpperCase() ?? 'Error..'}",
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: appWhite),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "${surah.arti ?? 'Error..'} | ${surah.jumlahAyat ?? 'Error..'} Ayat | ${surah.tempatTurun}",
-                            style:
-                                const TextStyle(fontSize: 16, color: appWhite),
-                          ),
-                        ],
+                                color: appWhite,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "${surah.arti ?? 'Error..'} | ${surah.jumlahAyat ?? 'Error..'} Ayat | ${surah.tempatTurun}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: appWhite,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              AutoScrollTag(
+                key: const ValueKey(1),
+                index: 1,
+                controller: controller.scrollC,
+                child: const SizedBox(height: 20),
+              ),
               ...allAyat,
             ],
           ),

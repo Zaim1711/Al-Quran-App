@@ -50,6 +50,15 @@ class _SearchSurahViewState extends State<SearchSurahView> {
           ),
         ),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: appWhite,
+          ),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(60.0),
           child: Padding(
@@ -61,7 +70,7 @@ class _SearchSurahViewState extends State<SearchSurahView> {
               ),
               child: TextField(
                 controller: searchController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
                   hintText: 'Cari Nama Surah...',
@@ -69,7 +78,7 @@ class _SearchSurahViewState extends State<SearchSurahView> {
                   border: InputBorder.none,
                   suffixIcon: Icon(Icons.search, color: Colors.white),
                 ),
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
                   filterSurah(value);
                 },
@@ -80,12 +89,12 @@ class _SearchSurahViewState extends State<SearchSurahView> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(),
           );
         }
         if (filteredSurah.isEmpty) {
-          return Center(
+          return const Center(
             child: Text("Tidak ada data"),
           );
         }
@@ -94,6 +103,7 @@ class _SearchSurahViewState extends State<SearchSurahView> {
           itemBuilder: (context, index) {
             Surah surah = filteredSurah[index];
             return Card(
+              color: controller.isDark.value ? Colors.grey[800] : Colors.white,
               elevation: 3,
               margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: ListTile(
@@ -122,8 +132,10 @@ class _SearchSurahViewState extends State<SearchSurahView> {
                       child: Text(
                         "${surah.nomor ?? 'Error..'}",
                         style: TextStyle(
-                          color: Colors.black,
                           fontWeight: FontWeight.bold,
+                          color: controller.isDark.isTrue
+                              ? Colors.white
+                              : Colors.black,
                         ),
                       ),
                     ),
@@ -133,19 +145,25 @@ class _SearchSurahViewState extends State<SearchSurahView> {
                   "${surah.namaLatin ?? 'Error..'}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color:
+                        controller.isDark.value ? Colors.white : Colors.black,
                   ),
                 ),
                 subtitle: Text(
                   "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat ",
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: controller.isDark.value
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
                   ),
                 ),
                 trailing: Text(
                   "${surah.nama ?? 'Error..'}",
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
-                    color: Colors.grey[700],
+                    color: controller.isDark.value
+                        ? Colors.grey[400]
+                        : Colors.grey[700],
                   ),
                 ),
               ),

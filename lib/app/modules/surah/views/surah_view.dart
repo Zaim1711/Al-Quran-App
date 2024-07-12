@@ -628,7 +628,7 @@ class _SurahViewState extends State<SurahView> {
                                 title: Text(
                                     "${data['surah'].toString().replaceAll("+", "'")}"),
                                 subtitle: Text(
-                                  "Ayat ${data['ayat']}",
+                                  "Ayat ${data['ayat']} - ${data['turun']}",
                                   style: TextStyle(
                                     color: Colors.grey[500],
                                   ),
