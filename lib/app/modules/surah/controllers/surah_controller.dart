@@ -13,6 +13,7 @@ import 'package:test_cli/app/routes/app_pages.dart';
 
 class SurahController extends GetxController {
   RxBool isDark = false.obs;
+  var isLoading = false.obs;
 
   DatabaseManager database = DatabaseManager.instance;
 
@@ -46,6 +47,7 @@ class SurahController extends GetxController {
     List<Map<String, dynamic>> allbookmark = await db.query(
       "bookmark",
       where: "last_read = 0",
+      orderBy: "surah",
     );
     return allbookmark;
   }
@@ -101,21 +103,35 @@ class SurahController extends GetxController {
   final AudioPlayer player = AudioPlayer();
   Surah? lastAyat;
 
-  void playAudio(Surah? surah) async {
+  void playAudio(Surah? surah, String selectedQari) async {
     if (surah?.audioFull != null && surah!.audioFull!.isNotEmpty) {
       try {
-        lastAyat ??= surah;
-        lastAyat!.kondisiAudio = "stop";
-        lastAyat = surah;
-        lastAyat!.kondisiAudio = "stop";
+        // Menghentikan audio sebelumnya jika ada
         await player.stop();
-        String audioUrl = surah.audioFull!.values.first;
+
+        // Mengambil URL audio dari qari yang dipilih
+        String? audioUrl = surah.audioFull?[selectedQari];
+
+        if (audioUrl == null) {
+          Get.defaultDialog(
+            title: "Terjadi kesalahan",
+            middleText: "URL Audio tidak ada untuk qari yang dipilih.",
+          );
+          return;
+        }
+
+        // Set URL audio ke player
         await player.setUrl(audioUrl);
+
+        // Mengubah kondisi audio dan memperbarui tampilan
         surah.kondisiAudio = "playing";
         update(['audioState']); // Specific update id
+
+        // Memulai pemutaran audio
         await player.play();
+
+        // Mengubah kondisi audio menjadi 'stop' setelah pemutaran selesai
         surah.kondisiAudio = "stop";
-        await player.stop();
         update(['audioState']); // Specific update id
       } catch (e) {
         Get.defaultDialog(
@@ -131,7 +147,7 @@ class SurahController extends GetxController {
     }
   }
 
-  void pauseAudio(Surah? surah) async {
+  void pauseAudio(Surah? surah, String selectedQari) async {
     if (surah != null) {
       try {
         await player.pause();
@@ -146,7 +162,7 @@ class SurahController extends GetxController {
     }
   }
 
-  void resumeAudio(Surah? surah) async {
+  void resumeAudio(Surah? surah, String selectedQari) async {
     if (surah != null) {
       try {
         surah.kondisiAudio = "playing";
@@ -162,7 +178,7 @@ class SurahController extends GetxController {
     }
   }
 
-  void stopAudio(Surah? surah) async {
+  void stopAudio(Surah? surah, String selectedQari) async {
     if (surah != null) {
       await player.stop();
       surah.kondisiAudio = "stop";

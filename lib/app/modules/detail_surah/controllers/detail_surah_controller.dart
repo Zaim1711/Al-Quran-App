@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:test_cli/app/constants/color.dart';
 import 'package:test_cli/app/data/db/bookmark.dart';
 import 'package:test_cli/app/data/model/detailSurah.dart';
 
 class DetailSurahController extends GetxController {
+  AutoScrollController scrollC = AutoScrollController();
   var surahDetails = Rxn<DetailSurah>();
 
   DatabaseManager database = DatabaseManager.instance;
@@ -24,9 +26,9 @@ class DetailSurahController extends GetxController {
     } else {
       List checkData = await db.query(
         "bookmark",
-        columns: ["surah", "ayat", "index_ayat", "last_read"],
+        columns: ["surah", "number_surah", "ayat", "index_ayat", "last_read"],
         where:
-            "surah= '${surah.namaLatin?.replaceAll("'", "+")}' and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
+            "surah= '${surah.namaLatin?.replaceAll("'", "+")}' and number_surah = ${surah.nomor!} and ayat = ${ayat.nomorAyat} and index_ayat = $indexAyat and last_read = 0",
       );
       if (checkData.length != 0) {
         flagExist = true;
@@ -36,6 +38,7 @@ class DetailSurahController extends GetxController {
     if (flagExist == false) {
       await db.insert("bookmark", {
         "surah": "${surah.namaLatin?.replaceAll("'", "+")}",
+        "number_surah": "${surah.nomor}",
         "ayat": "${ayat.nomorAyat}",
         "index_ayat": indexAyat,
         "last_read": lastRead == true ? 1 : 0,
@@ -43,8 +46,7 @@ class DetailSurahController extends GetxController {
 
       Get.back();
       update();
-      Get.snackbar("Berhasil", "Berhasil menambahkan bookmark",
-          colorText: appWhite);
+      Get.snackbar("Berhasil", "Berhasil menambahkan", colorText: appWhite);
     } else {
       Get.back();
       Get.snackbar("Terjadi Kesalahan", "Bookmark telah tersedia",

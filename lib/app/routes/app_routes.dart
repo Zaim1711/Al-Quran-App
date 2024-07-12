@@ -10,7 +10,6 @@ abstract class Routes {
   static const TAFSIR = _Paths.TAFSIR;
   static const SEARCH = _Paths.SEARCH;
   static const SEARCH_SURAH = _Paths.SEARCH_SURAH;
-  static const LAST_READ = _Paths.LAST_READ;
   static const JUZ_DETAIL = _Paths.JUZ_DETAIL;
 }
 
@@ -23,6 +22,5 @@ abstract class _Paths {
   static const TAFSIR = '/tafsir';
   static const SEARCH = '/search';
   static const SEARCH_SURAH = '/search-surah';
-  static const LAST_READ = '/last-read';
   static const JUZ_DETAIL = '/juz-detail';
 }

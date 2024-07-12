@@ -16,6 +16,7 @@ class _SurahViewState extends State<SurahView> {
   final TextEditingController searchController = TextEditingController();
   List<Surah> allSurah = [];
   List<Surah> filteredSurah = [];
+  String selectedQari = "01";
 
   @override
   void initState() {
@@ -194,6 +195,16 @@ class _SurahViewState extends State<SurahView> {
                           onTap: () {
                             if (lastRead != null) {
                               //diarahkan ke page last read
+                              Get.toNamed(
+                                Routes.DETAIL_SURAH,
+                                arguments: {
+                                  "name": lastRead["surah"]
+                                      .toString()
+                                      .replaceAll("+", "'"),
+                                  "surahNumber": lastRead["number_surah"],
+                                  "bookmark": lastRead
+                                },
+                              );
                             }
                           },
                           child: SizedBox(
@@ -249,7 +260,7 @@ class _SurahViewState extends State<SurahView> {
                                             : "Ayat ${lastRead['ayat']}",
                                         style: const TextStyle(
                                           color: appWhite,
-                                          fontSize: 20,
+                                          fontSize: 16,
                                         ),
                                       ),
                                     ],
@@ -298,6 +309,7 @@ class _SurahViewState extends State<SurahView> {
                           itemCount: filteredSurah.length,
                           itemBuilder: (context, index) {
                             Surah surah = filteredSurah[index];
+
                             return ListTile(
                               onTap: () {
                                 Get.toNamed(Routes.DETAIL_SURAH,
@@ -354,83 +366,210 @@ class _SurahViewState extends State<SurahView> {
                             child: Text("Tidak ada data"),
                           );
                         }
-                        return ListView.builder(
-                          itemCount: filteredSurah.length,
-                          itemBuilder: (context, index) {
-                            Surah surah = filteredSurah[index];
-                            return ListTile(
-                              leading: Obx(
-                                () => Container(
-                                  height: 35,
-                                  width: 35,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        controller.isDark.isTrue
-                                            ? "assets/images/octagonwhite_list.png"
-                                            : "assets/images/octagon_list.png",
+                        List<Surah> surahs = snapshot.data!;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Obx(
+                                () => Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Qori', // Teks di atas dropdown
+                                      style: TextStyle(
+                                        color: controller.isDark.isTrue
+                                            ? appWhite
+                                            : appGreenDark,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
                                     ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "${surah.nomor ?? 'Error..'}",
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                "${surah.namaLatin ?? 'Error..'}",
-                              ),
-                              subtitle: Text(
-                                "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat ",
-                                style: TextStyle(
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                              trailing: GetBuilder<SurahController>(
-                                id: 'audioState', // Specific update id
-                                builder: (c) => Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    (surah.kondisiAudio == "stop")
-                                        ? IconButton(
-                                            onPressed: () {
-                                              c.playAudio(surah);
-                                            },
-                                            icon: const Icon(Icons.play_arrow),
-                                          )
-                                        : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              (surah.kondisiAudio == "playing")
-                                                  ? IconButton(
-                                                      onPressed: () {
-                                                        c.pauseAudio(surah);
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.pause),
-                                                    )
-                                                  : IconButton(
-                                                      onPressed: () {
-                                                        c.resumeAudio(surah);
-                                                      },
-                                                      icon: const Icon(
-                                                          Icons.play_arrow),
-                                                    ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  c.stopAudio(surah);
-                                                },
-                                                icon: const Icon(Icons.stop),
-                                              ),
-                                            ],
+                                    const SizedBox(
+                                      height: 8,
+                                    ), // Spasi antara teks dan dropdown
+                                    InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          borderSide: const BorderSide(
+                                              color: Colors.grey),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey[
+                                            200], // Warna latar belakang sesuai mode tema
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                        suffixIcon: Icon(
+                                          Icons.arrow_drop_down,
+                                          color: controller.isDark.isTrue
+                                              ? appGreenDark
+                                              : Colors.black,
+                                        ), // Icon dropdown
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: selectedQari,
+                                          items: const [
+                                            DropdownMenuItem(
+                                              child: Text("Abdullah Al-Juhany"),
+                                              value: "01",
+                                            ),
+                                            DropdownMenuItem(
+                                              child:
+                                                  Text("Abdul-Muhsin Al-Qasim"),
+                                              value: "02",
+                                            ),
+                                            DropdownMenuItem(
+                                              child:
+                                                  Text("Abdurrahman As-Sudais"),
+                                              value: "03",
+                                            ),
+                                            DropdownMenuItem(
+                                              child: Text("Ibrahim Al-Dossari"),
+                                              value: "04",
+                                            ),
+                                            DropdownMenuItem(
+                                              child: Text(
+                                                  "Misyari Rasyid Al-Afasi"),
+                                              value: "05",
+                                            ),
+                                          ],
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              if (newValue == null) {
+                                                // Tampilkan Snackbar jika qori tidak dipilih
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Silakan pilih qori terlebih dahulu'),
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              } else {
+                                                // Stop audio untuk semua surah yang sedang diputar sebelum mengubah qori
+                                                surahs.forEach((surah) {
+                                                  controller.stopAudio(
+                                                      surah, selectedQari);
+                                                });
+                                                selectedQari =
+                                                    newValue; // Handle null case
+                                              }
+                                            });
+                                          },
+                                          style: TextStyle(
+                                            color: appGreenDark,
                                           ),
+                                          dropdownColor:
+                                              appWhite, // Warna dropdown sesuai mode tema
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          isExpanded: true,
+                                          icon: const Icon(
+                                              null), // Menggunakan isExpanded agar DropdownButton memenuhi lebar yang tersedia
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: surahs.length,
+                                itemBuilder: (context, index) {
+                                  Surah surah = surahs[index];
+
+                                  return ListTile(
+                                    leading: Obx(
+                                      () => Container(
+                                        height: 35,
+                                        width: 35,
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              controller.isDark.isTrue
+                                                  ? "assets/images/octagonwhite_list.png"
+                                                  : "assets/images/octagon_list.png",
+                                            ),
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "${surah.nomor ?? 'Error..'}",
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      "${surah.namaLatin ?? 'Error..'}",
+                                    ),
+                                    subtitle: Text(
+                                      "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat ",
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                      ),
+                                    ),
+                                    trailing: GetBuilder<SurahController>(
+                                      id: 'audioState',
+                                      builder: (c) => Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          (surah.kondisiAudio == "stop")
+                                              ? IconButton(
+                                                  onPressed: () {
+                                                    c.playAudio(
+                                                        surah, selectedQari);
+                                                  },
+                                                  icon: Icon(Icons.play_arrow),
+                                                )
+                                              : Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    (surah.kondisiAudio ==
+                                                            "playing")
+                                                        ? IconButton(
+                                                            onPressed: () {
+                                                              c.pauseAudio(
+                                                                  surah,
+                                                                  selectedQari);
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.pause),
+                                                          )
+                                                        : IconButton(
+                                                            onPressed: () {
+                                                              c.resumeAudio(
+                                                                  surah,
+                                                                  selectedQari);
+                                                            },
+                                                            icon: Icon(Icons
+                                                                .play_arrow),
+                                                          ),
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        c.stopAudio(surah,
+                                                            selectedQari);
+                                                      },
+                                                      icon: Icon(Icons.stop),
+                                                    ),
+                                                  ],
+                                                ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -455,7 +594,16 @@ class _SurahViewState extends State<SurahView> {
                               Map<String, dynamic> data = snapshot.data![index];
                               return ListTile(
                                 onTap: () {
-                                  print(data);
+                                  Get.toNamed(
+                                    Routes.DETAIL_SURAH,
+                                    arguments: {
+                                      "name": data["surah"]
+                                          .toString()
+                                          .replaceAll("+", "'"),
+                                      "surahNumber": data["number_surah"],
+                                      "bookmark": data
+                                    },
+                                  );
                                 },
                                 leading: Obx(
                                   () => Container(
