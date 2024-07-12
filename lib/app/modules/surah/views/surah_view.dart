@@ -83,75 +83,14 @@ class _SurahViewState extends State<SurahView> {
                   future: c.getLastRead(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: const LinearGradient(
-                            colors: [
-                              appGreenLight,
-                              appGreenDark,
-                            ],
-                          ),
-                        ),
-                        child: SizedBox(
-                          width: Get.width,
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                bottom: -5,
-                                right: 0,
-                                child: Opacity(
-                                  opacity: 0.9,
-                                  child: SizedBox(
-                                    width: 150,
-                                    height: 155,
-                                    child: Image.asset(
-                                      "assets/images/Alquran_images.png",
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.menu_book_rounded,
-                                          color: appWhite,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          "Terakhir dibaca",
-                                          style: TextStyle(color: appWhite),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 30),
-                                    Text(
-                                      "Loading...",
-                                      style: TextStyle(
-                                        color: appWhite,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      "",
-                                      style: TextStyle(
-                                        color: appWhite,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text("Terjadi kesalahan"),
                       );
                     }
 
@@ -175,26 +114,28 @@ class _SurahViewState extends State<SurahView> {
                           onLongPress: () {
                             if (lastRead != null) {
                               Get.defaultDialog(
-                                  title: "Hapus Terakhir dibaca",
-                                  middleText:
-                                      "Apakah anda yakin untuk menghapus?",
-                                  actions: [
-                                    OutlinedButton(
-                                      onPressed: () => Get.back(),
-                                      child: Text("CANCEL"),
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          c.deleteBookmark(lastRead['id']);
-                                        },
-                                        child: Text("DELETE"))
-                                  ]);
+                                title: "Hapus Terakhir dibaca",
+                                middleText:
+                                    "Apakah anda yakin untuk menghapus?",
+                                actions: [
+                                  OutlinedButton(
+                                    onPressed: () => Get.back(),
+                                    child: Text("CANCEL"),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      c.deleteBookmark(lastRead['id']);
+                                      Get.back(); // Close dialog after deleting
+                                    },
+                                    child: Text("DELETE"),
+                                  ),
+                                ],
+                              );
                             }
                           },
                           borderRadius: BorderRadius.circular(20),
                           onTap: () {
                             if (lastRead != null) {
-                              //diarahkan ke page last read
                               Get.toNamed(
                                 Routes.DETAIL_SURAH,
                                 arguments: {
@@ -202,7 +143,7 @@ class _SurahViewState extends State<SurahView> {
                                       .toString()
                                       .replaceAll("+", "'"),
                                   "surahNumber": lastRead["number_surah"],
-                                  "bookmark": lastRead
+                                  "bookmark": lastRead,
                                 },
                               );
                             }
@@ -339,7 +280,7 @@ class _SurahViewState extends State<SurahView> {
                                 "${surah.namaLatin ?? 'Error..'}",
                               ),
                               subtitle: Text(
-                                "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat ",
+                                "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat (${surah.tempatTurun})",
                                 style: TextStyle(
                                   color: Colors.grey[500],
                                 ),
@@ -511,7 +452,7 @@ class _SurahViewState extends State<SurahView> {
                                       "${surah.namaLatin ?? 'Error..'}",
                                     ),
                                     subtitle: Text(
-                                      "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat ",
+                                      "${surah.arti ?? 'Error..'} - ${surah.jumlahAyat ?? 'Error..'} Ayat (${surah.tempatTurun})",
                                       style: TextStyle(
                                         color: Colors.grey[500],
                                       ),
