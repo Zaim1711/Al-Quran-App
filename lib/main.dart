@@ -14,7 +14,7 @@ void main() async {
       debugShowCheckedModeBanner: false,
       theme: box.read("appDark") == null ? appLight : appDark,
       title: "Application",
-      initialRoute: Routes.INTRODUCTION,
+      initialRoute: Routes.HOME,
       getPages: AppPages.routes,
     ),
   );
